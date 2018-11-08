@@ -54,15 +54,19 @@
   <ItemGroup>
     <Compile Include="Core\Colors.cs" />
     <Compile Include="Core\DungeonMap.cs" />
+    <Compile Include="Core\Interfaces\IActor.cs" />
+    <Compile Include="Core\Interfaces\IDrawable.cs" />
     <Compile Include="Core\MapGenerator.cs" />
     <Compile Include="Core\Swatch.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="Core\Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="consolas_unicode_16x16.png">
@@ -75,5 +79,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
