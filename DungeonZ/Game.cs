@@ -35,10 +35,15 @@ namespace DungeonZ
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        public static DungeonMap DungeonMap { get; private set; }
+
         public static void Play()
         {
             string fontFileName = "terminal16x16_gs_ro.png";
             string consoleTitle = "D$ DungeonZ";
+
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
+            DungeonMap = mapGenerator.CreateMap();
 
             _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight, 16, 16, 1.5f, consoleTitle);
 
@@ -72,6 +77,10 @@ namespace DungeonZ
         // Event handler for Render event
         private static void OnRootConsoleRender(object sender, UpdateEventArgs e)
         {
+            // draw the map
+            DungeonMap.Draw(_mapConsole);
+            
+            //combine all the smaller consoles to the main one
             RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight,
               _rootConsole, 0, _inventoryHeight);
             RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight,
@@ -80,7 +89,6 @@ namespace DungeonZ
               _rootConsole, 0, _screenHeight - _messageHeight);
             RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight,
               _rootConsole, 0, 0);
-
             _rootConsole.Draw();
         }
     }
