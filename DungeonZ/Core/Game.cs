@@ -10,41 +10,52 @@ namespace DungeonZ
 {
     public class Game
     {
-        // The screen height and width are in number of tiles
+        // The screen height and width are in number of tiles this will change based on scale passed in root!
         private static readonly int _screenWidth = 100;
         private static readonly int _screenHeight = 70;
         private static RLRootConsole _rootConsole;
 
-        // The map console takes up most of the screen and is where the map will be drawn
         private static readonly int _mapWidth = 80;
         private static readonly int _mapHeight = 48;
         private static RLConsole _mapConsole;
 
-        // Below the map console is the message console which displays attack rolls and other information
+        //for attacks and stuff, might split?
         private static readonly int _messageWidth = 80;
         private static readonly int _messageHeight = 11;
         private static RLConsole _messageConsole;
 
-        // The stat console is to the right of the map and display player and monster stats
+        // player and monster stats, again might split?
         private static readonly int _statWidth = 20;
         private static readonly int _statHeight = 70;
         private static RLConsole _statConsole;
 
-        // Above the map is the inventory console which shows the players equipment, abilities, and items
+        // players stuff, like equipment, abilities, and items, sub consoles again?
         private static readonly int _inventoryWidth = 80;
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        private static bool _renderRequired = true;
+        // this is what is going to handle user input for now
+        public static CommandSystem CommandSystem { get; private set; }
+
+        // game objects
         public static DungeonMap DungeonMap { get; private set; }
+        public static Player Player { get; private set; }
 
         public static void Play()
         {
             string fontFileName = "terminal16x16_gs_ro.png";
             string consoleTitle = "D$ DungeonZ";
 
+            //setup player and systems
+            Player = new Player();
+            CommandSystem = new CommandSystem();
             MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
-            DungeonMap = mapGenerator.CreateMap();
 
+            DungeonMap = mapGenerator.CreateMap();
+            DungeonMap.UpdatePlayerFieldOfView();
+
+            // first numbers effect tile size
             _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight, 16, 16, 1.5f, consoleTitle);
 
             _mapConsole = new RLConsole(_mapWidth, _mapHeight);
@@ -52,15 +63,7 @@ namespace DungeonZ
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-            // have to register events for RLNet for update and render
-            _rootConsole.Update += OnRootConsoleUpdate;
-            _rootConsole.Render += OnRootConsoleRender;
-            _rootConsole.Run();
-        }
-
-        // Event handler for Update event
-        private static void OnRootConsoleUpdate(object sender, UpdateEventArgs e)
-        {
+            //these console methods have to be run before the update and render below
             _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
             _mapConsole.Print(1, 1, "Map", Colors.TextHeading);
 
@@ -72,14 +75,60 @@ namespace DungeonZ
 
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+
+            // have to register events for RLNet for update and render
+            _rootConsole.Update += OnRootConsoleUpdate;
+            _rootConsole.Render += OnRootConsoleRender;
+            _rootConsole.Run();
+
+
+        }
+
+        // Event handler for Update event
+        private static void OnRootConsoleUpdate(object sender, UpdateEventArgs e)
+        {
+            //might move this junk out of consoleupdate to clean up, but this moves char for now
+            bool didPlayerAct = false;
+            RLKeyPress keyPress = _rootConsole.Keyboard.GetKeyPress();
+
+            if (keyPress != null)
+            {
+                if (keyPress.Key == RLKey.Up)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Up);
+                }
+                else if (keyPress.Key == RLKey.Down)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Down);
+                }
+                else if (keyPress.Key == RLKey.Left)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Left);
+                }
+                else if (keyPress.Key == RLKey.Right)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Right);
+                }
+                else if (keyPress.Key == RLKey.Escape)
+                {
+                    _rootConsole.Close();
+                }
+            }
+
+            if (didPlayerAct)
+            {
+                _renderRequired = true;
+            }
+
         }
 
         // Event handler for Render event
         private static void OnRootConsoleRender(object sender, UpdateEventArgs e)
         {
-            // draw the map
+            // draw the map, this has to be first i think
             DungeonMap.Draw(_mapConsole);
-            
+            Player.Draw(_mapConsole, DungeonMap);
+
             //combine all the smaller consoles to the main one
             RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight,
               _rootConsole, 0, _inventoryHeight);
