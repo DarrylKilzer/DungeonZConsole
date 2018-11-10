@@ -1,5 +1,6 @@
 ﻿using DungeonZ.Core;
 using RLNET;
+using RogueSharp.Random;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,22 +36,28 @@ namespace DungeonZ
         private static RLConsole _inventoryConsole;
 
         private static bool _renderRequired = true;
-        // this is what is going to handle user input for now
-        public static CommandSystem CommandSystem { get; private set; }
 
-        // game objects
+        //systems
+        public static CommandSystem CommandSystem { get; private set; }
         public static DungeonMap DungeonMap { get; private set; }
+        public static IRandom Random { get; private set; }
+
         public static Player Player { get; private set; }
 
         public static void Play()
         {
             string fontFileName = "terminal16x16_gs_ro.png";
-            string consoleTitle = "D$ DungeonZ";
-
-            //setup player and systems
             Player = new Player();
+            int seed = (int)DateTime.UtcNow.Ticks;
+            Random = new DotNetRandom(seed);
+            //TODO: Take seed out after debugging
+            string consoleTitle = $"D$ DungeonZ Level 1 - Seed {seed}";
+
+            //setup systems
             CommandSystem = new CommandSystem();
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
+            // Dont change map width or height
+            //Attempting to make 20 rooms that are between 7 and 13 cells for room size
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 7, 13);
 
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
@@ -125,20 +132,24 @@ namespace DungeonZ
         // Event handler for Render event
         private static void OnRootConsoleRender(object sender, UpdateEventArgs e)
         {
-            // draw the map, this has to be first i think
-            DungeonMap.Draw(_mapConsole);
-            Player.Draw(_mapConsole, DungeonMap);
+            //dont want to redraw all the time for no reason
+            if (_renderRequired)
+            {
+                // draw the map, this has to be first i think
+                DungeonMap.Draw(_mapConsole);
+                Player.Draw(_mapConsole, DungeonMap);
 
-            //combine all the smaller consoles to the main one
-            RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight,
-              _rootConsole, 0, _inventoryHeight);
-            RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight,
-              _rootConsole, _mapWidth, 0);
-            RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight,
-              _rootConsole, 0, _screenHeight - _messageHeight);
-            RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight,
-              _rootConsole, 0, 0);
-            _rootConsole.Draw();
+                //combine all the smaller consoles to the main one
+                RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight,
+                  _rootConsole, 0, _inventoryHeight);
+                RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight,
+                  _rootConsole, _mapWidth, 0);
+                RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight,
+                  _rootConsole, 0, _screenHeight - _messageHeight);
+                RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight,
+                  _rootConsole, 0, 0);
+                _rootConsole.Draw();
+            }
         }
     }
 }

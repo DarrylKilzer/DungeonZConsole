@@ -11,6 +11,13 @@ namespace DungeonZ.Core
     //Altering the base class from RogueSharp
     public class DungeonMap : Map
     {
+        public List<Rectangle> Rooms { get; set; }
+
+        public DungeonMap()
+        {
+            Rooms = new List<Rectangle>();
+        }
+
         public void Draw(RLConsole mapConsole)
         {
             mapConsole.Clear();
