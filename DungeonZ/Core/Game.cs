@@ -49,7 +49,8 @@ namespace DungeonZ
             string fontFileName = "terminal16x16_gs_ro.png";
             Player = new Player();
             int seed = (int)DateTime.UtcNow.Ticks;
-            Random = new DotNetRandom(seed);
+            // for testing use 1138043851
+            Random = new DotNetRandom(1138043851);
             //TODO: Take seed out after debugging
             string consoleTitle = $"D$ DungeonZ Level 1 - Seed {seed}";
 
