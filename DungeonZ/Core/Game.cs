@@ -34,7 +34,6 @@ namespace DungeonZ
         private static readonly int _inventoryWidth = 80;
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
-        private static int _steps = 0;
 
         private static bool _renderRequired = true;
 
@@ -87,9 +86,6 @@ namespace DungeonZ
             _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DbDeepWater);
             _messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
 
-            _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.DbOldStone);
-            _statConsole.Print(1, 1, "Stats", Colors.TextHeading);
-
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
 
@@ -134,7 +130,6 @@ namespace DungeonZ
 
             if (didPlayerAct)
             {
-                MessageLog.Add($"Step # {++_steps}");
                 _renderRequired = true;
             }
 
@@ -149,6 +144,7 @@ namespace DungeonZ
                 // draw the map, this has to be first i think
                 DungeonMap.Draw(_mapConsole);
                 Player.Draw(_mapConsole, DungeonMap);
+                Player.DrawStats(_statConsole);
                 MessageLog.Draw(_messageConsole);
 
                 //combine all the smaller consoles to the main one
