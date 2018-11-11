@@ -34,31 +34,35 @@ namespace DungeonZ
         private static readonly int _inventoryWidth = 80;
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
+        private static int _steps = 0;
 
         private static bool _renderRequired = true;
 
         //systems
         public static CommandSystem CommandSystem { get; private set; }
         public static DungeonMap DungeonMap { get; private set; }
+        public static MessageLog MessageLog { get; private set; }
         public static IRandom Random { get; private set; }
 
-        public static Player Player { get; private set; }
+        public static Player Player { get; set; }
 
         public static void Play()
         {
             string fontFileName = "terminal16x16_gs_ro.png";
-            Player = new Player();
             int seed = (int)DateTime.UtcNow.Ticks;
             // for testing use 1138043851
-            Random = new DotNetRandom(1138043851);
+            Random = new DotNetRandom(seed);
             //TODO: Take seed out after debugging
             string consoleTitle = $"D$ DungeonZ Level 1 - Seed {seed}";
 
             //setup systems
             CommandSystem = new CommandSystem();
+            MessageLog = new MessageLog();
+            Player = new Player();
+
             // Dont change map width or height
             //Attempting to make 20 rooms that are between 7 and 13 cells for room size
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 7, 13);
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13);
 
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
@@ -75,6 +79,11 @@ namespace DungeonZ
             _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
             _mapConsole.Print(1, 1, "Map", Colors.TextHeading);
 
+            // Create a new MessageLog and print the random seed used to generate the level
+            MessageLog.Add($"{Player.Name} arrives on level 1");
+            MessageLog.Add($"Level created with seed '{seed}'");
+
+            // Remove these lines:
             _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DbDeepWater);
             _messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
 
@@ -125,6 +134,7 @@ namespace DungeonZ
 
             if (didPlayerAct)
             {
+                MessageLog.Add($"Step # {++_steps}");
                 _renderRequired = true;
             }
 
@@ -139,6 +149,7 @@ namespace DungeonZ
                 // draw the map, this has to be first i think
                 DungeonMap.Draw(_mapConsole);
                 Player.Draw(_mapConsole, DungeonMap);
+                MessageLog.Draw(_messageConsole);
 
                 //combine all the smaller consoles to the main one
                 RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight,

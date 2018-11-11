@@ -28,6 +28,37 @@ namespace DungeonZ.Core
             _map = new DungeonMap();
         }
 
+        private void PlacePlayer()
+        {
+            Player player = Game.Player;
+            if (player == null)
+            {
+                player = new Player();
+            }
+
+            player.X = _map.Rooms[0].Center.X;
+            player.Y = _map.Rooms[0].Center.Y;
+
+            _map.AddPlayer(player);
+        }
+
+        
+        private void CreateHorizontalTunnel(int xStart, int xEnd, int yPosition)
+        {
+            for (int x = Math.Min(xStart, xEnd); x <= Math.Max(xStart, xEnd); x++)
+            {
+                _map.SetCellProperties(x, yPosition, true, true);
+            }
+        }
+
+        private void CreateVerticalTunnel(int yStart, int yEnd, int xPosition)
+        {
+            for (int y = Math.Min(yStart, yEnd); y <= Math.Max(yStart, yEnd); y++)
+            {
+                _map.SetCellProperties(xPosition, y, true, true);
+            }
+        }
+
         // this is going to create a new map it places rooms randomly
         //currently not very good at placing rooms, probably a lot of open space unused
         // need to take a look at retrying intersecting room placement more often
@@ -57,11 +88,37 @@ namespace DungeonZ.Core
                     _map.Rooms.Add(newRoom);
                 }
             }
+
+            // Iterate through each room that was generated
+            // Don't do anything with the first room, so start at r = 1 instead of r = 0
+            for (int r = 1; r < _map.Rooms.Count; r++)
+            {
+                // For all remaing rooms get the center of the room and the previous room
+                int previousRoomCenterX = _map.Rooms[r - 1].Center.X;
+                int previousRoomCenterY = _map.Rooms[r - 1].Center.Y;
+                int currentRoomCenterX = _map.Rooms[r].Center.X;
+                int currentRoomCenterY = _map.Rooms[r].Center.Y;
+
+                // Give a 50/50 chance of which 'L' shaped connecting hallway to tunnel out
+                if (Game.Random.Next(1, 2) == 1)
+                {
+                    CreateHorizontalTunnel(previousRoomCenterX, currentRoomCenterX, previousRoomCenterY);
+                    CreateVerticalTunnel(previousRoomCenterY, currentRoomCenterY, currentRoomCenterX);
+                }
+                else
+                {
+                    CreateVerticalTunnel(previousRoomCenterY, currentRoomCenterY, previousRoomCenterX);
+                    CreateHorizontalTunnel(previousRoomCenterX, currentRoomCenterX, currentRoomCenterY);
+                }
+            }
+
             // call CreateRoom to set the room values using the rectangle placeholder for room
             foreach (Rectangle room in _map.Rooms)
             {
                 CreateRoom(room);
             }
+
+            PlacePlayer();
 
             return _map;
         }
@@ -75,50 +132,54 @@ namespace DungeonZ.Core
                 for (int y = room.Top + 1; y < room.Bottom; y++)
                 {
                     //set last to true to see rooms without exploring for dev
-                    _map.SetCellProperties(x, y, true, true, true);
+                    _map.SetCellProperties(x, y, true, true, false);
                 }
             }
         }
     }
 }
 
+
+
+
+
 //single room with walls around outside
-    //public class MapGenerator
-    //{
-    //    private readonly int _width;
-    //    private readonly int _height;
+//public class MapGenerator
+//{
+//    private readonly int _width;
+//    private readonly int _height;
 
-    //    private readonly DungeonMap _map;
+//    private readonly DungeonMap _map;
 
-    //    public MapGenerator(int width, int height)
-    //    {
-    //        _width = width;
-    //        _height = height;
-    //        _map = new DungeonMap();
-    //    }
+//    public MapGenerator(int width, int height)
+//    {
+//        _width = width;
+//        _height = height;
+//        _map = new DungeonMap();
+//    }
 
-    //    public DungeonMap CreateMap()
-    //    {
-    //        // Initialize every cell in the map by
-    //        // setting walkable, transparency, and explored to true
-    //        _map.Initialize(_width, _height);
-    //        foreach (Cell cell in _map.GetAllCells())
-    //        {
-    //            _map.SetCellProperties(cell.X, cell.Y, true, true, true);
-    //        }
+//    public DungeonMap CreateMap()
+//    {
+//        // Initialize every cell in the map by
+//        // setting walkable, transparency, and explored to true
+//        _map.Initialize(_width, _height);
+//        foreach (Cell cell in _map.GetAllCells())
+//        {
+//            _map.SetCellProperties(cell.X, cell.Y, true, true, true);
+//        }
 
-    //        // Set the first and last rows in the map to not be transparent or walkable
-    //        foreach (Cell cell in _map.GetCellsInRows(0, _height - 1))
-    //        {
-    //            _map.SetCellProperties(cell.X, cell.Y, false, false, true);
-    //        }
+//        // Set the first and last rows in the map to not be transparent or walkable
+//        foreach (Cell cell in _map.GetCellsInRows(0, _height - 1))
+//        {
+//            _map.SetCellProperties(cell.X, cell.Y, false, false, true);
+//        }
 
-    //        // Set the first and last columns in the map to not be transparent or walkable
-    //        foreach (Cell cell in _map.GetCellsInColumns(0, _width - 1))
-    //        {
-    //            _map.SetCellProperties(cell.X, cell.Y, false, false, true);
-    //        }
+//        // Set the first and last columns in the map to not be transparent or walkable
+//        foreach (Cell cell in _map.GetCellsInColumns(0, _width - 1))
+//        {
+//            _map.SetCellProperties(cell.X, cell.Y, false, false, true);
+//        }
 
-    //        return _map;
-    //    }
-    //}
+//        return _map;
+//    }
+//}

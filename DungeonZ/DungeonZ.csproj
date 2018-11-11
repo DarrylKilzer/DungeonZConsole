@@ -60,6 +60,7 @@
     <Compile Include="Core\Interfaces\IActor.cs" />
     <Compile Include="Core\Interfaces\IDrawable.cs" />
     <Compile Include="Core\MapGenerator.cs" />
+    <Compile Include="Core\MessageLog.cs" />
     <Compile Include="Core\Player.cs" />
     <Compile Include="Core\Swatch.cs" />
     <Compile Include="Core\Game.cs" />

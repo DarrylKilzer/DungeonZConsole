@@ -18,6 +18,13 @@ namespace DungeonZ.Core
             Rooms = new List<Rectangle>();
         }
 
+        public void AddPlayer(Player player)
+        {
+            Game.Player = player;
+            SetIsWalkable(player.X, player.Y, false);
+            UpdatePlayerFieldOfView();
+        }
+
         public void Draw(RLConsole mapConsole)
         {
             mapConsole.Clear();
