@@ -138,6 +138,7 @@ namespace DungeonZ.Core
                 }
                 defenseMessage.AppendFormat("resulting in {0} blocks.", blocks);
             }
+            //this resolves if hits were 0 or lower.
             else
             {
                 attackMessage.Append("and misses completely.");
