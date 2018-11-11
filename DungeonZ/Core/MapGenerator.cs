@@ -75,7 +75,7 @@ namespace DungeonZ.Core
                 for (int y = room.Top + 1; y < room.Bottom; y++)
                 {
                     //set last to true to see rooms without exploring for dev
-                    _map.SetCellProperties(x, y, true, true, false);
+                    _map.SetCellProperties(x, y, true, true, true);
                 }
             }
         }
