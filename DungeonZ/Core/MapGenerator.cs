@@ -1,4 +1,5 @@
 ﻿using RogueSharp;
+using RogueSharp.DiceNotation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,7 +119,9 @@ namespace DungeonZ.Core
                 CreateRoom(room);
             }
 
+            //after map is made, add players and monsters and things
             PlacePlayer();
+            PlaceMonsters();
 
             return _map;
         }
@@ -133,6 +136,33 @@ namespace DungeonZ.Core
                 {
                     //set last to true to see rooms without exploring for dev
                     _map.SetCellProperties(x, y, true, true, false);
+                }
+            }
+        }
+
+        private void PlaceMonsters()
+        {
+            foreach (var room in _map.Rooms)
+            {
+                // Each room has a 60% chance of having monsters
+                if (Dice.Roll("1D10") < 7)
+                {
+                    // Generate between 1 and 4 monsters
+                    var numberOfMonsters = Dice.Roll("1D4");
+                    for (int i = 0; i < numberOfMonsters; i++)
+                    {
+                        Point randomRoomLocation = _map.GetRandomWalkableLocationInRoom(room);
+                        // if room doesnt have space, skip creating the monster
+                        if (randomRoomLocation != null)
+                        {
+                            // hard coded to be created at level 1
+                            //map generator will need to know the level of map its creating.
+                            var monster = Kobold.Create(1);
+                            monster.X = randomRoomLocation.X;
+                            monster.Y = randomRoomLocation.Y;
+                            _map.AddMonster(monster);
+                        }
+                    }
                 }
             }
         }

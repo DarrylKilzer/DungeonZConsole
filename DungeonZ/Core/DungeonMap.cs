@@ -11,11 +11,14 @@ namespace DungeonZ.Core
     //Altering the base class from RogueSharp
     public class DungeonMap : Map
     {
+        private readonly List<Monster> _monsters;
+
         public List<Rectangle> Rooms { get; set; }
 
         public DungeonMap()
         {
             Rooms = new List<Rectangle>();
+            _monsters = new List<Monster>();
         }
 
         public void AddPlayer(Player player)
@@ -25,12 +28,79 @@ namespace DungeonZ.Core
             UpdatePlayerFieldOfView();
         }
 
-        public void Draw(RLConsole mapConsole)
+        public void AddMonster(Monster monster)
         {
-            mapConsole.Clear();
+            _monsters.Add(monster);
+            SetIsWalkable(monster.X, monster.Y, false);
+        }
+
+        public void RemoveMonster(Monster monster)
+        {
+            _monsters.Remove(monster);
+            // After removing the monster from the map, make sure the cell is walkable again
+            SetIsWalkable(monster.X, monster.Y, true);
+        }
+
+        public Monster GetMonsterAt(int x, int y)
+        {
+            return _monsters.FirstOrDefault(m => m.X == x && m.Y == y);
+        }
+
+        // Look for a random location in the room that is walkable.
+        public Point GetRandomWalkableLocationInRoom(Rectangle room)
+        {
+            if (DoesRoomHaveWalkableSpace(room))
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    int x = Game.Random.Next(1, room.Width - 2) + room.X;
+                    int y = Game.Random.Next(1, room.Height - 2) + room.Y;
+                    if (IsWalkable(x, y))
+                    {
+                        return new Point(x, y);
+                    }
+                }
+            }
+
+            return new Point();
+        }
+
+        // Iterate through each Cell in the room and return true if any are walkable
+        public bool DoesRoomHaveWalkableSpace(Rectangle room)
+        {
+            for (int x = 1; x <= room.Width - 2; x++)
+            {
+                for (int y = 1; y <= room.Height - 2; y++)
+                {
+                    if (IsWalkable(x + room.X, y + room.Y))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void Draw(RLConsole mapConsole, RLConsole statConsole)
+        {
             foreach (Cell cell in GetAllCells())
             {
                 SetConsoleSymbolForCell(mapConsole, cell);
+            }
+
+            //has to happen second to draw over existing cells
+            //track index to move stats down each time
+            int i = 0;
+            foreach (Monster monster in _monsters)
+            {
+                monster.Draw(mapConsole, this);
+                // When the monster is in the field-of-view also draw their stats
+                if (IsInFov(monster.X, monster.Y))
+                {
+                    // Pass in the index to DrawStats and increment it afterwards
+                    monster.DrawStats(statConsole, i);
+                    i++;
+                }
             }
         }
 

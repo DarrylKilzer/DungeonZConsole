@@ -14,6 +14,13 @@ namespace DungeonZ.Core
         {
             int x = Game.Player.X;
             int y = Game.Player.Y;
+            Monster monster = Game.DungeonMap.GetMonsterAt(x, y);
+
+            if (monster != null)
+            {
+                Attack(Game.Player, monster);
+                return true;
+            }
 
             switch (direction)
             {
@@ -56,5 +63,7 @@ namespace DungeonZ.Core
 
             return false;
         }
+
+
     }
 }

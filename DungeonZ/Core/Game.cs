@@ -141,8 +141,13 @@ namespace DungeonZ
             //dont want to redraw all the time for no reason
             if (_renderRequired)
             {
+                //clear all
+                _mapConsole.Clear();
+                _statConsole.Clear();
+                _messageConsole.Clear();
+
                 // draw the map, this has to be first i think
-                DungeonMap.Draw(_mapConsole);
+                DungeonMap.Draw(_mapConsole, _statConsole);
                 Player.Draw(_mapConsole, DungeonMap);
                 Player.DrawStats(_statConsole);
                 MessageLog.Draw(_messageConsole);
