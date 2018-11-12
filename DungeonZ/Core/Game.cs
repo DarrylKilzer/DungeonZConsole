@@ -45,15 +45,16 @@ namespace DungeonZ
 
         public static IRandom Random { get; private set; }
         public static Player Player { get; set; }
+        private static int _mapLevel = 1;
+        public static int seed = (int)DateTime.UtcNow.Ticks;
 
         public static void Play()
         {
             string fontFileName = "terminal16x16_gs_ro.png";
-            int seed = (int)DateTime.UtcNow.Ticks;
             // for testing use 1138043851
             Random = new DotNetRandom(seed);
             //TODO: Take seed out after debugging
-            string consoleTitle = $"D$ DungeonZ Level 1 - Seed {seed}";
+            string consoleTitle = $"D$ DungeonZ Level {_mapLevel} - Seed {seed}";
 
             //setup systems
             SchedulingSystem = new SchedulingSystem();
@@ -62,8 +63,8 @@ namespace DungeonZ
             Player = new Player();
 
             // Dont change map width or height
-            //Attempting to make 20 rooms that are between 7 and 13 cells for room size
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13);
+            //Attempting to make 20 rooms that are between 5 and 13 cells for room size
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
 
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
@@ -129,6 +130,19 @@ namespace DungeonZ
                     else if (keyPress.Key == RLKey.Escape)
                     {
                         _rootConsole.Close();
+                    }
+                    else if (keyPress.Key == RLKey.Period)
+                    {
+                        if (DungeonMap.CanMoveDownToNextLevel())
+                        {
+                            _mapLevel += 1;
+                            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
+                            DungeonMap = mapGenerator.CreateMap();
+                            MessageLog = new MessageLog();
+                            CommandSystem = new CommandSystem();
+                            string consoleTitle = $"D$ DungeonZ Level {_mapLevel} - Seed {seed}";
+                            didPlayerAct = true;
+                        }
                     }
                 }
 

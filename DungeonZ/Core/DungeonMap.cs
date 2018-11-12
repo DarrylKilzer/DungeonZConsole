@@ -15,12 +15,21 @@ namespace DungeonZ.Core
 
         public List<Rectangle> Rooms { get; set; }
         public List<Door> Doors { get; set; }
+        public Stairs StairsUp { get; set; }
+        public Stairs StairsDown { get; set; }
 
         public DungeonMap()
         {
+            Game.SchedulingSystem.Clear();
             Rooms = new List<Rectangle>();
             Doors = new List<Door>();
             _monsters = new List<Monster>();
+        }
+
+        public bool CanMoveDownToNextLevel()
+        {
+            Player player = Game.Player;
+            return StairsDown.X == player.X && StairsDown.Y == player.Y;
         }
 
         public Door GetDoor(int x, int y)
@@ -131,6 +140,9 @@ namespace DungeonZ.Core
             {
                 door.Draw(mapConsole, this);
             }
+
+            StairsUp.Draw(mapConsole, this);
+            StairsDown.Draw(mapConsole, this);
         }
 
         private void SetConsoleSymbolForCell(RLConsole console, Cell cell)
