@@ -117,6 +117,7 @@ namespace DungeonZ.Core
             foreach (Rectangle room in _map.Rooms)
             {
                 CreateRoom(room);
+                CreateDoors(room);
             }
 
             //after map is made, add players and monsters and things
@@ -165,6 +166,77 @@ namespace DungeonZ.Core
                     }
                 }
             }
+        }
+
+        private void CreateDoors(Rectangle room)
+        {
+            // The the boundries of the room
+            int xMin = room.Left;
+            int xMax = room.Right;
+            int yMin = room.Top;
+            int yMax = room.Bottom;
+
+            // Put the rooms border cells into a list
+            List<ICell> borderCells = _map.GetCellsAlongLine(xMin, yMin, xMax, yMin).ToList();
+            borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMin, xMin, yMax));
+            borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMax, xMax, yMax));
+            borderCells.AddRange(_map.GetCellsAlongLine(xMax, yMin, xMax, yMax));
+
+            // Go through each of the rooms border cells and look for locations to place doors.
+            foreach (Cell cell in borderCells)
+            {
+                if (IsPotentialDoor(cell))
+                {
+                    // A door must block field-of-view when it is closed.
+                    _map.SetCellProperties(cell.X, cell.Y, false, true);
+                    _map.Doors.Add(new Door
+                    {
+                        X = cell.X,
+                        Y = cell.Y,
+                        IsOpen = false
+                    });
+                }
+            }
+        }
+
+        // Checks to see if a cell is a good candidate for placement of a door
+        private bool IsPotentialDoor(Cell cell)
+        {
+            // If the cell is not walkable
+            // then it is a wall and not a good place for a door
+            if (!cell.IsWalkable)
+            {
+                return false;
+            }
+
+            // Store references to all of the neighboring cells 
+            ICell right = _map.GetCell(cell.X + 1, cell.Y);
+            ICell left = _map.GetCell(cell.X - 1, cell.Y);
+            ICell top = _map.GetCell(cell.X, cell.Y - 1);
+            ICell bottom = _map.GetCell(cell.X, cell.Y + 1);
+
+            // Make sure there is not already a door here
+            if (_map.GetDoor(cell.X, cell.Y) != null ||
+                _map.GetDoor(right.X, right.Y) != null ||
+                _map.GetDoor(left.X, left.Y) != null ||
+                _map.GetDoor(top.X, top.Y) != null ||
+                _map.GetDoor(bottom.X, bottom.Y) != null)
+            {
+                return false;
+            }
+
+            // This is a good place for a door on the left or right side of the room
+            if (right.IsWalkable && left.IsWalkable && !top.IsWalkable && !bottom.IsWalkable)
+            {
+                return true;
+            }
+
+            // This is a good place for a door on the top or bottom of the room
+            if (!right.IsWalkable && !left.IsWalkable && top.IsWalkable && bottom.IsWalkable)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

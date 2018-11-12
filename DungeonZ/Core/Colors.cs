@@ -21,6 +21,12 @@ namespace DungeonZ.Core
         public static RLColor WallBackgroundFov = Swatch.SecondaryDarker;
         public static RLColor WallFov = Swatch.SecondaryLighter;
 
+        //doors
+        public static RLColor DoorBackground = Swatch.ComplimentDarkest;
+        public static RLColor Door = Swatch.ComplimentLighter;
+        public static RLColor DoorBackgroundFov = Swatch.ComplimentDarker;
+        public static RLColor DoorFov = Swatch.ComplimentLightest;
+
         //text
         public static RLColor TextHeading = RLColor.White;
         public static RLColor Text = Swatch.DbLight;

@@ -221,6 +221,7 @@ namespace DungeonZ.Core
                 Game.DungeonMap.RemoveMonster((Monster)defender);
 
                 Game.MessageLog.Add($"  {defender.Name} died and dropped {defender.Gold} gold");
+                Game.Player.Gold += defender.Gold;
             }
         }
     }

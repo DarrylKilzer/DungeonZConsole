@@ -14,11 +14,32 @@ namespace DungeonZ.Core
         private readonly List<Monster> _monsters;
 
         public List<Rectangle> Rooms { get; set; }
+        public List<Door> Doors { get; set; }
 
         public DungeonMap()
         {
             Rooms = new List<Rectangle>();
+            Doors = new List<Door>();
             _monsters = new List<Monster>();
+        }
+
+        public Door GetDoor(int x, int y)
+        {
+            return Doors.SingleOrDefault(d => d.X == x && d.Y == y);
+        }
+
+        private void OpenDoor(Actor actor, int x, int y)
+        {
+            Door door = GetDoor(x, y);
+            if (door != null && !door.IsOpen)
+            {
+                door.IsOpen = true;
+                var cell = GetCell(x, y);
+                // Once the door is opened it should be marked as transparent and no longer block field-of-view
+                SetCellProperties(x, y, true, cell.IsWalkable, cell.IsExplored);
+
+                Game.MessageLog.Add($"{actor.Name} opened a door");
+            }
         }
 
         public void AddPlayer(Player player)
@@ -105,6 +126,11 @@ namespace DungeonZ.Core
                     i++;
                 }
             }
+            //draw doors
+            foreach (Door door in Doors)
+            {
+                door.Draw(mapConsole, this);
+            }
         }
 
         private void SetConsoleSymbolForCell(RLConsole console, Cell cell)
@@ -171,6 +197,7 @@ namespace DungeonZ.Core
                 actor.Y = y;
                 // The new cell the actor is on is now not walkable
                 SetIsWalkable(actor.X, actor.Y, false);
+                OpenDoor(actor, x, y);
                 // Don't forget to update the field of view if we just repositioned the player
                 if (actor is Player)
                 {
