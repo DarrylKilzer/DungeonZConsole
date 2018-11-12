@@ -5,7 +5,7 @@ using RogueSharp;
 
 namespace DungeonZ.Core
 {
-    public class Actor : IActor, IDrawable
+    public class Actor : IActor, IDrawable, IScheduleable
     {
         // IActor
         private int _attack;
@@ -138,6 +138,13 @@ namespace DungeonZ.Core
                 _speed = value;
             }
         }
+        public int Time
+        {
+            get
+            {
+                return Speed;
+            }
+        }
 
         // IDrawable
         public RLColor Color { get; set; }
@@ -163,5 +170,6 @@ namespace DungeonZ.Core
                 console.Set(X, Y, Colors.Floor, Colors.FloorBackground, '.');
             }
         }
+
     }
 }

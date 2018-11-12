@@ -1,4 +1,5 @@
-﻿using RLNET;
+﻿using DungeonZ.Core.Behaviors;
+using RLNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace DungeonZ.Core
 {
     public class Monster : Actor
     {
+        public int? TurnsAlerted { get; set; }
+
         public void DrawStats(RLConsole statConsole, int position)
         {
             // Start at Y=13 which is below the player stats.
@@ -23,6 +26,12 @@ namespace DungeonZ.Core
             statConsole.SetBackColor(3, yPosition, width, 1, Swatch.Primary);
             statConsole.SetBackColor(3 + width, yPosition, remainingWidth, 1, Swatch.PrimaryDarkest);
             statConsole.Print(2, yPosition, $": {Name}", Swatch.DbLight);
+        }
+
+        public virtual void PerformAction(CommandSystem commandSystem)
+        {
+            var behavior = new StandardMoveAndAttack();
+            behavior.Act(this, commandSystem);
         }
     }
 }

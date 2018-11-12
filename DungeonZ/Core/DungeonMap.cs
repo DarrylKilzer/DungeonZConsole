@@ -26,12 +26,14 @@ namespace DungeonZ.Core
             Game.Player = player;
             SetIsWalkable(player.X, player.Y, false);
             UpdatePlayerFieldOfView();
+            Game.SchedulingSystem.Add(player);
         }
 
         public void AddMonster(Monster monster)
         {
             _monsters.Add(monster);
             SetIsWalkable(monster.X, monster.Y, false);
+            Game.SchedulingSystem.Add(monster);
         }
 
         public void RemoveMonster(Monster monster)
@@ -39,6 +41,7 @@ namespace DungeonZ.Core
             _monsters.Remove(monster);
             // After removing the monster from the map, make sure the cell is walkable again
             SetIsWalkable(monster.X, monster.Y, true);
+            Game.SchedulingSystem.Remove(monster);
         }
 
         public Monster GetMonsterAt(int x, int y)
