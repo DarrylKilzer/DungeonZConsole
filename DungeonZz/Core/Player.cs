@@ -1,4 +1,5 @@
-﻿using RLNET;
+﻿using DungeonZ.Systems;
+using RLNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DungeonZ.Core
 {
     public class Player : Actor
     {
-        public Player()
+        public Player(string name)
         {
             Attack = 2;
             AttackChance = 50;
@@ -20,7 +21,7 @@ namespace DungeonZ.Core
             Gold = 0;
             Health = 100;
             MaxHealth = 100;
-            Name = "D$";
+            Name = name;
             Speed = 10;
             Symbol = '0';
         }

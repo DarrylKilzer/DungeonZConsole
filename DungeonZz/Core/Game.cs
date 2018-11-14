@@ -12,82 +12,65 @@ namespace DungeonZ.Core
 {
     public class Game
     {
-        // The screen height and width are in number of tiles this will change based on scale passed in root!
         private static readonly int _screenWidth = 100;
         private static readonly int _screenHeight = 70;
-        private static RLRootConsole _rootConsole;
-
         private static readonly int _mapWidth = 80;
         private static readonly int _mapHeight = 48;
-        private static RLConsole _mapConsole;
-
-        //for attacks and stuff, might split?
         private static readonly int _messageWidth = 80;
         private static readonly int _messageHeight = 11;
-        private static RLConsole _messageConsole;
-
-        // player and monster stats, again might split?
         private static readonly int _statWidth = 20;
         private static readonly int _statHeight = 70;
-        private static RLConsole _statConsole;
-
-        // players stuff, like equipment, abilities, and items, sub consoles again?
         private static readonly int _inventoryWidth = 80;
         private static readonly int _inventoryHeight = 11;
+
+        private static RLConsole _mapConsole;
+        private static RLRootConsole _rootConsole;
+        private static RLConsole _messageConsole;
+        private static RLConsole _statConsole;
         private static RLConsole _inventoryConsole;
+
 
         private static int _mapLevel = 1;
         private static bool _renderRequired = true;
 
-        //systems
         public static Player Player { get; set; }
         public static DungeonMap DungeonMap { get; private set; }
         public static MessageLog MessageLog { get; private set; }
         public static CommandSystem CommandSystem { get; private set; }
         public static SchedulingSystem SchedulingSystem { get; private set; }
-
         public static IRandom Random { get; private set; }
-        public static int seed = (int)DateTime.UtcNow.Ticks;
 
         public static void Play()
         {
-            // for testing use 1138043851
+            // fixed test seed 1138043851
+            int seed = (int)DateTime.UtcNow.Ticks;
             Random = new DotNetRandom(seed);
 
             string fontFileName = "terminal16x16_gs_ro.png";
-            //Take seed out after debugging
-            string consoleTitle = $"D$ DungeonZ Level {_mapLevel} - Seed {seed}";
+            string consoleTitle = $"DungeonZ Level {_mapLevel}";
 
-            //setup systems
-            // Create a new MessageLog and print the random seed used to generate the level
-            MessageLog = new MessageLog();
-            
-            //console instances
-            // first numbers effect tile size
+
             _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight, 16, 16, 1.5f, consoleTitle);
             _mapConsole = new RLConsole(_mapWidth, _mapHeight);
             _messageConsole = new RLConsole(_messageWidth, _messageHeight);
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
+            CommandSystem = new CommandSystem();
+            MessageLog = new MessageLog();
+            MessageLog.Add($"{Player.Name} arrives on level 1");
             SchedulingSystem = new SchedulingSystem();
-
-            // Dont change map width or height
-            //Attempting to make 20 rooms that are between 5 and 13 cells for room size
             MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
             //messages have to be added after createmap to have access to player
-            MessageLog.Add($"{Player.Name} arrives on level 1");
-            MessageLog.Add($"Level created with seed '{seed}'");
 
 
-            CommandSystem = new CommandSystem();
 
             //register to delegate
             _rootConsole.Update += OnRootConsoleUpdate;
             _rootConsole.Render += OnRootConsoleRender;
-            
+
             //these console methods have to be run before the update and render below
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
@@ -136,7 +119,7 @@ namespace DungeonZ.Core
                             DungeonMap = mapGenerator.CreateMap();
                             MessageLog = new MessageLog();
                             CommandSystem = new CommandSystem();
-                            _rootConsole.Title = $"DungeonZ Level {_mapLevel} - Seed {seed}";
+                            _rootConsole.Title = $"DungeonZ Level {_mapLevel}";
                             didPlayerAct = true;
                         }
                     }

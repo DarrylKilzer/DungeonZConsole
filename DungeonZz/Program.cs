@@ -11,6 +11,8 @@ namespace DungeonZ
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("What is your Name?");
+            Game.Player = new Player(new string(Console.ReadLine().Where(Char.IsLetterOrDigit).ToArray()));
             Game.Play();
         }
     }

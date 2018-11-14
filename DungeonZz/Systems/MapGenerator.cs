@@ -36,7 +36,7 @@ namespace DungeonZ.Systems
             Player player = Game.Player;
             if (player == null)
             {
-                player = new Player();
+                player = new Player("Bob");
             }
 
             player.X = _map.Rooms[0].Center.X;
