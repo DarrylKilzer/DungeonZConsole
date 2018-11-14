@@ -14,6 +14,59 @@ namespace DungeonZ.Systems
     {
         public bool IsPlayerTurn { get; set; }
 
+        // Return value is true if the player was able to move
+        // false when the player couldn't move, such as trying to move into a wall
+        public bool MovePlayer(Direction direction)
+        {
+            int x = Game.Player.X;
+            int y = Game.Player.Y;
+
+            switch (direction)
+            {
+                case Direction.Up:
+                    {
+                        y = Game.Player.Y - 1;
+                        break;
+                    }
+                case Direction.Down:
+                    {
+                        y = Game.Player.Y + 1;
+                        break;
+                    }
+                case Direction.Left:
+                    {
+                        x = Game.Player.X - 1;
+                        break;
+                    }
+                case Direction.Right:
+                    {
+                        x = Game.Player.X + 1;
+                        break;
+                    }
+                default:
+                    {
+                        return false;
+                    }
+            }
+
+            if (Game.DungeonMap.SetActorPosition(Game.Player, x, y))
+            {
+                return true;
+            }
+
+            //if the first action failed, maybe there is a monster, try to get it
+            Monster monster = Game.DungeonMap.GetMonsterAt(x, y);
+
+            //if there is a monster attack it
+            if (monster != null)
+            {
+                Attack(Game.Player, monster);
+                return true;
+            }
+
+            //otherwise its a non walkable position, fail
+            return false;
+        }
         public void EndPlayerTurn()
         {
             IsPlayerTurn = false;
@@ -52,65 +105,6 @@ namespace DungeonZ.Systems
             }
         }
 
-        // Return value is true if the player was able to move
-        // false when the player couldn't move, such as trying to move into a wall
-        public bool MovePlayer(Direction direction)
-        {
-            int x = Game.Player.X;
-            int y = Game.Player.Y;
-
-            switch (direction)
-            {
-                case Direction.Up:
-                    {
-                        y = Game.Player.Y - 1;
-                        break;
-                    }
-                case Direction.Down:
-                    {
-                        y = Game.Player.Y + 1;
-                        break;
-                    }
-                case Direction.DownRight:
-                    {
-                        y = Game.Player.Y + 1;
-                        x = Game.Player.X + 1;
-                        break;
-                    }
-                case Direction.Left:
-                    {
-                        x = Game.Player.X - 1;
-                        break;
-                    }
-                case Direction.Right:
-                    {
-                        x = Game.Player.X + 1;
-                        break;
-                    }
-                default:
-                    {
-                        return false;
-                    }
-            }
-
-            if (Game.DungeonMap.SetActorPosition(Game.Player, x, y))
-            {
-                return true;
-            }
-
-            //if the first action failed, maybe there is a monster, try to get it
-            Monster monster = Game.DungeonMap.GetMonsterAt(x, y);
-
-            //if there is a monster attack it
-            if (monster != null)
-            {
-                Attack(Game.Player, monster);
-                return true;
-            }
-
-            //otherwise its a non walkable position, fail
-            return false;
-        }
 
         public void Attack(Actor attacker, Actor defender)
         {

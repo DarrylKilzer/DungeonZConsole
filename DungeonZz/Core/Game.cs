@@ -36,66 +36,63 @@ namespace DungeonZ.Core
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        private static int _mapLevel = 1;
         private static bool _renderRequired = true;
 
         //systems
-        public static CommandSystem CommandSystem { get; private set; }
+        public static Player Player { get; set; }
         public static DungeonMap DungeonMap { get; private set; }
         public static MessageLog MessageLog { get; private set; }
+        public static CommandSystem CommandSystem { get; private set; }
         public static SchedulingSystem SchedulingSystem { get; private set; }
 
         public static IRandom Random { get; private set; }
-        public static Player Player { get; set; }
-        private static int _mapLevel = 1;
         public static int seed = (int)DateTime.UtcNow.Ticks;
 
         public static void Play()
         {
-            string fontFileName = "terminal16x16_gs_ro.png";
             // for testing use 1138043851
             Random = new DotNetRandom(seed);
-            //TODO: Take seed out after debugging
+
+            string fontFileName = "terminal16x16_gs_ro.png";
+            //Take seed out after debugging
             string consoleTitle = $"D$ DungeonZ Level {_mapLevel} - Seed {seed}";
 
             //setup systems
-            SchedulingSystem = new SchedulingSystem();
-            CommandSystem = new CommandSystem();
+            // Create a new MessageLog and print the random seed used to generate the level
             MessageLog = new MessageLog();
-            Player = new Player();
-
-            // Dont change map width or height
-            //Attempting to make 20 rooms that are between 5 and 13 cells for room size
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
-
-            DungeonMap = mapGenerator.CreateMap();
-            DungeonMap.UpdatePlayerFieldOfView();
-
+            
+            //console instances
             // first numbers effect tile size
             _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight, 16, 16, 1.5f, consoleTitle);
-
             _mapConsole = new RLConsole(_mapWidth, _mapHeight);
             _messageConsole = new RLConsole(_messageWidth, _messageHeight);
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-            //these console methods have to be run before the update and render below
-            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
-            _mapConsole.Print(1, 1, "Map", Colors.TextHeading);
+            SchedulingSystem = new SchedulingSystem();
 
-            // Create a new MessageLog and print the random seed used to generate the level
+            // Dont change map width or height
+            //Attempting to make 20 rooms that are between 5 and 13 cells for room size
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
+            DungeonMap = mapGenerator.CreateMap();
+            DungeonMap.UpdatePlayerFieldOfView();
+            //messages have to be added after createmap to have access to player
             MessageLog.Add($"{Player.Name} arrives on level 1");
             MessageLog.Add($"Level created with seed '{seed}'");
 
-            // Remove these lines:
-            _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DbDeepWater);
-            _messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
 
+            CommandSystem = new CommandSystem();
+
+            //register to delegate
+            _rootConsole.Update += OnRootConsoleUpdate;
+            _rootConsole.Render += OnRootConsoleRender;
+            
+            //these console methods have to be run before the update and render below
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
 
-            // have to register events for RLNet for update and render
-            _rootConsole.Update += OnRootConsoleUpdate;
-            _rootConsole.Render += OnRootConsoleRender;
+            // Run RLNet game loop
             _rootConsole.Run();
 
         }
@@ -135,12 +132,11 @@ namespace DungeonZ.Core
                     {
                         if (DungeonMap.CanMoveDownToNextLevel())
                         {
-                            _mapLevel += 1;
-                            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, _mapLevel);
+                            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 50, 5, 13, ++_mapLevel);
                             DungeonMap = mapGenerator.CreateMap();
                             MessageLog = new MessageLog();
                             CommandSystem = new CommandSystem();
-                            string consoleTitle = $"D$ DungeonZ Level {_mapLevel} - Seed {seed}";
+                            _rootConsole.Title = $"DungeonZ Level {_mapLevel} - Seed {seed}";
                             didPlayerAct = true;
                         }
                     }
@@ -186,7 +182,10 @@ namespace DungeonZ.Core
                   _rootConsole, 0, _screenHeight - _messageHeight);
                 RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight,
                   _rootConsole, 0, 0);
+                //draw main console
                 _rootConsole.Draw();
+
+                _renderRequired = false;
             }
         }
     }

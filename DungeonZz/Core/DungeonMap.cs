@@ -26,10 +26,42 @@ namespace DungeonZ.Core
             _monsters = new List<Monster>();
         }
 
-        public bool CanMoveDownToNextLevel()
+        public void UpdatePlayerFieldOfView()
         {
             Player player = Game.Player;
-            return StairsDown.X == player.X && StairsDown.Y == player.Y;
+            // awareness changes the distance a player sees
+            ComputeFov(player.X, player.Y, player.Awareness, true);
+            // update cells to be explored
+            foreach (Cell cell in GetAllCells())
+            {
+                if (IsInFov(cell.X, cell.Y))
+                {
+                    SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, true);
+                }
+            }
+        }
+
+        public bool SetActorPosition(Actor actor, int x, int y)
+        {
+            // Only allow actor placement if the cell is walkable
+            if (GetCell(x, y).IsWalkable)
+            {
+                // The cell the actor was previously on is now walkable
+                SetIsWalkable(actor.X, actor.Y, true);
+                // Update the actor's position
+                actor.X = x;
+                actor.Y = y;
+                // The new cell the actor is on is now not walkable
+                SetIsWalkable(actor.X, actor.Y, false);
+                OpenDoor(actor, x, y);
+                // Don't forget to update the field of view if we just repositioned the player
+                if (actor is Player)
+                {
+                    UpdatePlayerFieldOfView();
+                }
+                return true;
+            }
+            return false;
         }
 
         public Door GetDoor(int x, int y)
@@ -50,6 +82,13 @@ namespace DungeonZ.Core
                 Game.MessageLog.Add($"{actor.Name} opened a door");
             }
         }
+
+        public bool CanMoveDownToNextLevel()
+        {
+            Player player = Game.Player;
+            return StairsDown.X == player.X && StairsDown.Y == player.Y;
+        }
+
 
         public void AddPlayer(Player player)
         {
@@ -95,7 +134,7 @@ namespace DungeonZ.Core
                 }
             }
 
-            return new Point();
+            return Point.Zero;
         }
 
         // Iterate through each Cell in the room and return true if any are walkable
@@ -121,6 +160,15 @@ namespace DungeonZ.Core
                 SetConsoleSymbolForCell(mapConsole, cell);
             }
 
+            //draw doors
+            foreach (Door door in Doors)
+            {
+                door.Draw(mapConsole, this);
+            }
+
+            StairsUp.Draw(mapConsole, this);
+            StairsDown.Draw(mapConsole, this);
+
             //has to happen second to draw over existing cells
             //track index to move stats down each time
             int i = 0;
@@ -135,14 +183,6 @@ namespace DungeonZ.Core
                     i++;
                 }
             }
-            //draw doors
-            foreach (Door door in Doors)
-            {
-                door.Draw(mapConsole, this);
-            }
-
-            StairsUp.Draw(mapConsole, this);
-            StairsDown.Draw(mapConsole, this);
         }
 
         private void SetConsoleSymbolForCell(RLConsole console, Cell cell)
@@ -183,42 +223,7 @@ namespace DungeonZ.Core
         }
 
         //
-        public void UpdatePlayerFieldOfView()
-        {
-            Player player = Game.Player;
-            // awareness changes the distance a player sees
-            ComputeFov(player.X, player.Y, player.Awareness, true);
-            // update cells to be explored
-            foreach (Cell cell in GetAllCells())
-            {
-                if (IsInFov(cell.X, cell.Y))
-                {
-                    SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, true);
-                }
-            }
-        }
-        public bool SetActorPosition(Actor actor, int x, int y)
-        {
-            // Only allow actor placement if the cell is walkable
-            if (GetCell(x, y).IsWalkable)
-            {
-                // The cell the actor was previously on is now walkable
-                SetIsWalkable(actor.X, actor.Y, true);
-                // Update the actor's position
-                actor.X = x;
-                actor.Y = y;
-                // The new cell the actor is on is now not walkable
-                SetIsWalkable(actor.X, actor.Y, false);
-                OpenDoor(actor, x, y);
-                // Don't forget to update the field of view if we just repositioned the player
-                if (actor is Player)
-                {
-                    UpdatePlayerFieldOfView();
-                }
-                return true;
-            }
-            return false;
-        }
+        
 
         // A helper method for setting the IsWalkable property on a Cell
         public void SetIsWalkable(int x, int y, bool isWalkable)
