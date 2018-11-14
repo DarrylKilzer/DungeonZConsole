@@ -1,6 +1,6 @@
-﻿using DungeonZz.Core;
-using DungeonZz.Interfaces;
-using DungeonZz.Systems;
+﻿using DungeonZ.Core;
+using DungeonZ.Interfaces;
+using DungeonZ.Systems;
 using RogueSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Behaviors
+namespace DungeonZ.Behaviors
 {
     public class StandardMoveAndAttack : IBehavior
     {

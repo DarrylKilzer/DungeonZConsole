@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Core
+namespace DungeonZ.Core
 {
     public class Swatch
     {

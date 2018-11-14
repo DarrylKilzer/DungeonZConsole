@@ -1,5 +1,5 @@
-﻿using DungeonZz.Behaviors;
-using DungeonZz.Systems;
+﻿using DungeonZ.Behaviors;
+using DungeonZ.Systems;
 using RLNET;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Core
+namespace DungeonZ.Core
 {
     public class Monster : Actor
     {

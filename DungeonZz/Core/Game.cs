@@ -1,4 +1,5 @@
-﻿using RLNET;
+﻿using DungeonZ.Systems;
+using RLNET;
 using RogueSharp;
 using RogueSharp.Random;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Core
+namespace DungeonZ.Core
 {
     public class Game
     {
@@ -96,7 +97,6 @@ namespace DungeonZz.Core
             _rootConsole.Update += OnRootConsoleUpdate;
             _rootConsole.Render += OnRootConsoleRender;
             _rootConsole.Run();
-
 
         }
 

@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonZ", "DungeonZ\DungeonZ.csproj", "{77D6F6F6-8307-4316-9FE5-6F02475B5707}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonZz", "DungeonZz\DungeonZz.csproj", "{487426F4-98BB-4980-85C0-F1EB6B8B33A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonZ", "DungeonZz\DungeonZ.csproj", "{487426F4-98BB-4980-85C0-F1EB6B8B33A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{77D6F6F6-8307-4316-9FE5-6F02475B5707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77D6F6F6-8307-4316-9FE5-6F02475B5707}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77D6F6F6-8307-4316-9FE5-6F02475B5707}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77D6F6F6-8307-4316-9FE5-6F02475B5707}.Release|Any CPU.Build.0 = Release|Any CPU
 		{487426F4-98BB-4980-85C0-F1EB6B8B33A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{487426F4-98BB-4980-85C0-F1EB6B8B33A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{487426F4-98BB-4980-85C0-F1EB6B8B33A2}.Release|Any CPU.ActiveCfg = Release|Any CPU

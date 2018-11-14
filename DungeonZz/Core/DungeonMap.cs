@@ -1,10 +1,12 @@
-﻿using System;
+﻿using RLNET;
+using RogueSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Core
+namespace DungeonZ.Core
 {
     //Altering the base class from RogueSharp
     public class DungeonMap : Map

@@ -1,4 +1,4 @@
-﻿using DungeonZz.Interfaces;
+﻿using DungeonZ.Interfaces;
 using RLNET;
 using RogueSharp;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Core
+namespace DungeonZ.Core
 {
     public class Stairs : IDrawable
     {

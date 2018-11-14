@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonZz.Interfaces
+namespace DungeonZ.Interfaces
 {
     interface IDrawable
     {
