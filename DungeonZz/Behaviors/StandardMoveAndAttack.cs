@@ -64,9 +64,6 @@ namespace DungeonZ.Behaviors
                 {
                     try
                     {
-                        // TODO: This should be path.StepForward() but there is a bug in RogueSharp V3
-                        // The bug is that a Path returned from a PathFinder does not include the source Cell
-                        //commandSystem.MoveMonster(monster, path.StepForward());
                         commandSystem.MoveMonster(monster, (Cell)path.StepForward());
                     }
                     catch (NoMoreStepsException)
@@ -79,7 +76,7 @@ namespace DungeonZ.Behaviors
 
                 // Lose alerted status every 15 turns. 
                 // As long as the player is still in FoV the monster will stay alert
-                // Otherwise the monster will quit chasing the player.
+                // Otherwise the monster will quit chasing the player after a time.
                 if (monster.TurnsAlerted > 15)
                 {
                     monster.TurnsAlerted = null;
